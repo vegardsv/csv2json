@@ -13,23 +13,17 @@ function process({ infile, outfile, delimiter, pretty }) {
     const headers = lines[0].split(delimiter);
     const output = lines
       .filter((_, i) => i !== 0)
-      .map((line, i) => {
+      .map(line => {
         values = line.split(delimiter);
-        return "{"
-          .concat(values.map((value, i) => `"${headers[i]}":"${value}"`))
-          .concat("}");
+        return (
+          "{" + values.map((value, i) => `"${headers[i]}":"${value}"`) + "}"
+        );
       });
-    fs.writeFile(
-      outfile,
-      pretty ? format("[" + output + "]") : "[" + output + "]",
-      "utf8",
-      () => {
-        console.log("Job finished");
-      }
-    );
+    fs.writeFile(outfile, format(pretty, `[${output}]`), "utf8", () => {
+      console.log("Job finished");
+    });
   });
 }
 
-function format(input) {
-  return JSON.stringify(JSON.parse(input), null, 2);
-}
+const format = (pretty, input) =>
+  pretty ? JSON.stringify(JSON.parse(input), null, 2) : input;
